@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Event Management</title>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+
+<div id="sample">
+<input type="number" v-model="amount" /> <br/>
+<!-- v-on : 이벤트 처리, 줄여서 사용 가능 v-on:click -> @click -->
+<button v-on:click="balance += parseInt(amount)">예금</button>
+<button v-on:click="withdraw">출금</button>
+  <p>{{ balance }}</p>
+
+  <div id="outer" @click="outerClick" style="width: 1000px;height: 1000px;border: solid 1px black">
+    <div id="inner" @click="innerClick" style="width: 500px;height: 500px;border: solid 1px red"></div>
+  </div>
+
+</div>
+
+<script>
+  // 모델
+  var model = {
+    balance : 0,
+    amount : 0
+  };
+
+  // 뷰모델
+  var vmSum = new Vue({
+    el : '#sample',   // vue 인스턴스에 연결할 HTML 요소
+    data : model,      // 모델을 참조하고 있다. 모델이 변경되면 뷰모델 객체는 즉시 HTML 요소에 반영한다.
+    methods : {
+      /*
+        이벤트 객체 (e)
+          - 이벤트를 처리하는 메서드는 첫 번재 파라미터로 이벤트 객체를 전달 받는다.
+          - 주요 속성
+            target : 이벤트가 발생한 HTML 요소
+            currentTarget : 이벤트리스너가 이벤트를 발생시크는 HTML 요소를 리턴
+            path : 이벤트 발생 요소로부터 document, window까지 올라가는 경로
+            bubbles : 현재의 이벤트가 버블링을 일으키는 이밴트인지 여부 리턴
+            cancelable : 기본 이벤트를 방지할 수 있느지
+            defaultPrevented : 기본 이벤트가 방지되었는지
+            eventPhase : 이벤트 흐름의 단계
+            srcElement : IE에서 사용하는 속성으로 target과 동일
+
+            이외에도 키보드, 마우스 이벤트 관련 속성이 있음
+      */
+      withdraw : function (e) {
+
+        console.log(e);
+
+        this.balance -= parseInt(this.amount);
+      },
+      /*
+        이벤트 전파와 버블링
+          - 이벤트 처리 3단계
+            1. 이벤트 포착(CAPTURING_PHASE) : 이벤트 발생시 문서 밖에서 부터 발생시킨 요소까지 포착
+            2. 이벤트 발생(RAISING_PHASE) : 이벤트에 연결된 작업 실행
+            3. 이벤트 버블링(BUBBLING_PHASE) : 이벤트가 발생한 요소부터 상위 요소로 거슬러 올라가며 동일한 이벤트 호출
+
+        이벤트 수식어
+          - e.preventDefault() -> .prevent : HTML 요소의 기본 이벤트를 막는다.
+          - e.stopPropagation() -> .stop : 이벤트 버블링은 막는다.
+
+
+      */
+      outerClick : function(e) {
+        console.log("OUTER CLICKED");
+        console.log("Event Phase : " + e.eventPhase);
+        console.log("Current Target : ", e.currentTarget);
+        console.log("Target : ", e.target);
+      },
+      innerClick : function(e) {
+        console.log("INNER CLICKED");
+        console.log("Event Phase : " + e.eventPhase);
+        console.log("Current Target : ", e.currentTarget);
+        console.log("Target : ", e.target);
+        e.stopPropagation();
+      }
+
+    }
+  });
+</script>
+</body>
+</html>
