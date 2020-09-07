@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Vue Instance</title>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+
+<div id="sample">
+  <input type="number" v-model="computeNum"> <br/>
+  수의 합 : <span>{{ sumCompute }}</span> <br/>
+  <input type="number" v-model="methodNum"> <br/>
+  수의 합 : <span>{{ sumMethod() }}</span>
+  <br/>
+  <br/>
+  x : <input type="number" v-model="x"> / y : <input type="number" v-model="y">
+</div>
+
+<script>
+  // 모델
+  var model = {
+    computeNum : 0,
+    methodNum : 0,
+    x : 0,
+    y : 0,
+    sum : 0
+  };
+
+  /*
+    Vue 인스턴스 라이프 사이클
+      - beforeCreate  : 인스턴스가 생성되고 데이터 관찰, 이벤트 초기화 설정 전
+      - create  : 데이터 관찰, 이벤트 초기화 설정 후
+      - beforeMount : 마운트가 시작 전
+      - mounted : el에 인스턴스의 데이터가 마운트 된 후
+      - beforeUpdate  : 가상 DOM이 렌더링 패치 되기 전
+      - updated : 데이터의 변경으로 가상 DOM이 다시 렌더링되고 패치된 후
+      - beforeDestroy : 인스턴스가 제거되기 전
+      - destroyed : 인스턴스가 제거된 후
+  */
+
+  // 뷰모델
+  var vmSum = new Vue({
+    el : '#sample',   // vue 인스턴스에 연결할 HTML 요소
+    data : model,     // 모델을 참조하고 있다. 모델이 변경되면 뷰모델 객체는 즉시 HTML 요소에 반영한다.
+    computed: {
+      sumCompute : function() {
+        console.log('Compute : ' + Date.now());
+        var n = Number(this.computeNum);
+        if (Number.isNaN(n) || n < 1) return 0;
+        return ((1+n)*n)/2;
+      }
+    },
+    methods : {       // method 인스턴스에서 사용할 메서드를 등록
+      sumMethod : function() {
+        console.log('Method : ' + Date.now());
+        var n = Number(this.methodNum);
+        if (Number.isNaN(n) || n < 1) return 0;
+        return ((1+n)*n)/2;
+      }
+    },
+    /*
+      methods VS computed
+        - 내부 작동 방식에 차이가 있다.
+        - computed : 해당 함수와 연결된 데이터 변동이 있을때만 해당 함수를 실행
+        - methods : template 내부에 선언된 Method중 아무 변수나 바뀐다면 함수를 모두 실행
+    */
+    /*
+      관찰 속성
+        - 긴 처리 시간이 필요한 비동기 처리에 적합
+        - 값이 바뀔 때마다 매번 함수가 호출된다.
+    */
+    watch : {
+      x : function(v) {
+        console.log('## X 변경');
+        var result = Number(v) + Number(this.y);
+        if (isNaN(result)) this.sum = 0;
+        else this.sum = result;
+      },
+      y : function(v) {
+        console.log('## Y 변경');
+        var result = Number(this.x) + Number(v)
+        if (isNaN(result)) this.sum = 0;
+        else this.sum = result;
+      }
+    }
+
+
+  })
+</script>
+</body>
+</html>
